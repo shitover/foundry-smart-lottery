@@ -62,6 +62,18 @@ VRFCoordinatorV2Interface private immutable i_vrfCoordinator;
         s_lastTimeStamp = block.timestamp;
     }
 
+    modifier raffleEntered()  { 
+        vm.prank(PLAYER);
+        raffle.enterRaffle{value: raffleEntranceFee}();
+        raffle.performUpkeep("");
+        vm.expectRevert(Raffle.Raffle__RaffleNotOpen.selector);
+        vm.warp(block.timestamp + automationUpdateInterval + 1);
+        vm.roll(block.number + 1);
+        _;
+        
+    }
+
+
     function enterRaffle()  public payable {
 
         if (msg.value < i_entranceFee) {
